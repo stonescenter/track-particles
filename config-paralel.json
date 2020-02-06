@@ -1,0 +1,46 @@
+{
+    "data": {
+        "filename": "/data/track-ml/phi025-025_eta025-025/phi025-025_eta025-025_filtered.csv",
+        "train_split": 0.70,
+        "normalise": true
+    },
+    "training": {
+        "epochs": 20,
+        "batch_size": 5
+    },
+
+    "model": {
+        "name": "lstm-paralel",
+        "loss": "mse",
+        "optimizer": "RMSprop",
+        "save_dir": "results/",
+        "layers": [
+            {
+                "type": "lstm-paralel",
+                "neurons": 400,
+                "input_timesteps": 4,
+                "input_features": 3,
+                "return_seq": false
+            },
+            {
+                "type": "dense",
+                "neurons": 400,
+                "activation": "relu"
+            },             
+            {
+                "type": "dropout",
+                "rate": 0.2
+            },
+            {
+                "type": "dense",
+                "neurons": 20,
+                "activation": "relu"
+            },              
+            {
+                "type": "dense",
+                "neurons": 3,
+                "activation": "linear"
+            }
+        ]
+    }
+}

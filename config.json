@@ -1,0 +1,43 @@
+{
+    "data": {
+        "filename": "./dataset/event_2000_2020_train.csv",
+        "train_split": 0.80,
+        "normalise": true
+    },
+    "training": {
+        "epochs": 30,
+        "batch_size": 20
+    },
+
+    "model": {
+        "name": "lstm",
+        "loss": "mse",
+        "optimizer": "adam",
+        "save_dir": "results/",
+        "layers": [
+            {
+                "type": "lstm",
+                "neurons": 20,
+                "input_timesteps": 4,
+                "input_features": 3,
+                "return_seq": true
+            },
+            {
+                "type": "dropout",
+                "rate": 0.2
+            },
+            {
+                "type": "lstm",
+                "neurons": 20,
+                "input_timesteps": 4,
+                "input_features": 3,
+                "return_seq": true
+            },                          
+            {
+                "type": "dense",
+                "neurons": 3,
+                "activation": "linear"
+            }
+        ]
+    }
+}
