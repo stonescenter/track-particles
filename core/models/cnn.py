@@ -1,3 +1,7 @@
+__author__ = "Steve Ataucuri"
+__copyright__ = "Sprace.org.br"
+__version__ = "1.0.0"
+
 from keras.layers import Input, Dense, Activation, Dropout, LSTM
 from keras.layers import concatenate, CuDNNLSTM
 from keras.models import Model

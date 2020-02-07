@@ -1,3 +1,7 @@
+__author__ = "Steve Ataucuri"
+__copyright__ = "Sprace.org.br"
+__version__ = "1.0.0"
+
 import sys
 import os
 import argparse

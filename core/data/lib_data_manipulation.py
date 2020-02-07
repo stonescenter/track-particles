@@ -1,3 +1,7 @@
+__author__ = "unknow"
+__copyright__ = "Sprace.org.br"
+__version__ = "1.0.0"
+
 import pandas as pd
 import sys
 

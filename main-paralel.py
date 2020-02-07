@@ -1,7 +1,6 @@
 __author__ = "Steve Ataucuri"
 __copyright__ = "Sprace.org.br"
 __version__ = "1.0.0"
-__license__ = "MIT"
 
 import sys
 import os

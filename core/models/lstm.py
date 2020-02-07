@@ -1,3 +1,7 @@
+__author__ = "Steve Ataucuri"
+__copyright__ = "Sprace.org.br"
+__version__ = "1.0.0"
+
 from keras.layers import Input, Dense, Activation, Dropout, LSTM
 from keras.layers import TimeDistributed, RepeatVector
 from keras.layers import concatenate, CuDNNLSTM
@@ -112,7 +116,7 @@ class ModelLSTMParalel(BaseModel):
         # this model is not sequencial
         self.model = None
         configs = self.c
-        
+
         for layer in configs['model']['layers']:
 
             neurons = layer['neurons'] if 'neurons' in layer else None
