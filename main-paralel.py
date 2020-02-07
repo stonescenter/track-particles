@@ -183,11 +183,10 @@ def main():
     y_pred = pd.DataFrame(y_predicted_orig)
     y_true = pd.DataFrame(y_test_orig)
 
-    print('[Output] saving results ...')
     y_true.to_csv(os.path.join(output_path, 'y_true.csv'), header=False, index=False)
     y_pred.to_csv(os.path.join(output_path, 'y_pred.csv'), header=False, index=False)
     X_test.to_csv(os.path.join(output_path, 'x_test.csv'), header=False, index=False)
-
+    print('[Output] Results saved at %', output_path)
 if __name__=='__main__':
     main()
 
