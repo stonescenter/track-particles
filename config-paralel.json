@@ -4,7 +4,7 @@
         "log_dir": "logs"
     },
     "data": {
-        "filename": "/data/track-ml/phi025-025_eta025-025/phi025-025_eta025-025_filtered.csv",
+        "filename": "./dataset/phi025-025_eta025-025/phi025-025_eta025-025_filtered.csv",
         "train_split": 0.70,
         "normalise": true
     },
