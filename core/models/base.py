@@ -4,6 +4,11 @@ import os
 import math
 import datetime as dt
 
+import tensorflow as tf
+from tensorflow import set_random_seed
+
+import keras.backend as K
+from keras.backend.tensorflow_backend import set_session
 
 from keras.models import Sequential, load_model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
@@ -13,15 +18,45 @@ from core.utils.utils import Timer
 import numpy as np
 
 class BaseModel():
-    def __init__(self):
+    def __init__(self, configs):
         self.model = Sequential()
-        self.name = ''
+        self.name = configs['model']['name']
  
-    def load_model(self, filepath):
-        print('[Model] Loading model from file %s' % filepath)
-        self.model = load_model(filepath)
+        self.save_fnameh5 = os.path.join(configs['paths']['save_dir'], 'model-%s.h5' % (self.name))
+        self.save_fname = os.path.join(configs['paths']['save_dir'], 'architecture-%s.png' % self.name)
+
+        self.save = configs['training']['save_model']
+        
+        if configs['training']['use_gpu'] == True:
+            #config = tf.ConfigProto( device_count = {'GPU': 0 , 'CPU': 0} ) 
+            config = tf.ConfigProto()
+            config.gpu_options.allow_growth = True
+            sess = tf.Session(config=config) 
+            set_session(sess)
+            tf.device('/gpu:0')
+        else:
+            config=tf.ConfigProto(log_device_placement=True)
+            sess = tf.Session(config=config)
+            set_session(sess)
+
+        set_random_seed(42)
+
+    def load_model(self):
+        if self.exist_model(self.save_fname):
+            print('[Model] Loading model from file %s' % self.save_fname)
+            self.model = load_model(self.save_fname)
+            return True
+        else:
+            print('[Model] Can not load the model from file %s' % self.save_fname)
+        return False
+    
+    def exist_model(self, filepath):
+        if os.path.exists(filepath): 
+            return True
+        return False
 
     def save_architecture(self, filepath):
+
         plot_model(self.model, to_file=filepath, show_shapes=True)
         print('[Model] Model Architecture saved at %s' % filepath)
 
@@ -29,7 +64,7 @@ class BaseModel():
         self.model.save(filepath)
         print('[Model] Model for inference saved at %s' % filepath)
 
-    def train(self, x, y, epochs, batch_size, save_fname):
+    def train(self, x, y, epochs, batch_size):
         timer = Timer()
         timer.start()
         print('[Model] Training Started')
@@ -38,7 +73,7 @@ class BaseModel():
         #save_fname = os.path.join(save_dir, '%s-e%s.h5' % (dt.datetime.now().strftime('%d%m%Y-%H%M%S'), str(epochs)))
         callbacks = [
             EarlyStopping(monitor='val_loss', patience=2),
-            ModelCheckpoint(filepath=save_fname, monitor='val_loss', save_best_only=True)
+            ModelCheckpoint(filepath=self.save_fname, monitor='val_loss', save_best_only=True)
         ]
         history = self.model.fit(
             x,
@@ -49,10 +84,14 @@ class BaseModel():
             callbacks=callbacks
         )
 
-        self.save_model(save_fname)
+        if self.save == True:
+            self.save_model(self.save_fnameh5)
+            self.save_architecture(self.save_fname)
+    
+        self.model.summary()
         
-        print('[Model] Training Completed. Model saved as %s' % save_fname)
-        print('[Model] Model tr with structure:', self.model.inputs)
+        print('[Model] Training Completed. Model h5 saved as %s' % self.save_fnameh5)
+        print('[Model] Model train with structure:', self.model.inputs)
         timer.stop()
 
         return history

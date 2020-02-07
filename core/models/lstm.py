@@ -9,16 +9,17 @@ from core.utils.utils import Timer
 class ModelLSTM(BaseModel):
     """A class for an building and inferencing an lstm model"""
  
-    def __init__(self):
-        super().__init__()
- 
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.c = configs
+
     def build_model(self, configs):
         timer = Timer()
         timer.start()
  
         print('[Model] Creating model..')   
         self.name = configs['model']['name']
-        
+        configs = self.c
         for layer in configs['model']['layers']:
 
             neurons = layer['neurons'] if 'neurons' in layer else None
@@ -50,8 +51,9 @@ class ModelLSTM(BaseModel):
 class ModelLSTMCuDnnParalel(BaseModel):
     """A class for an building and inferencing an lstm model with cuDnnlstm"""
  
-    def __init__(self):
-        super().__init__()
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.c = configs
  
     def build_model(self, configs):
         timer = Timer()
@@ -61,7 +63,7 @@ class ModelLSTMCuDnnParalel(BaseModel):
 
         # this model is not sequencial
         self.model = None
-
+        configs = self.c
         for layer in configs['model']['layers']:
 
             neurons = layer['neurons'] if 'neurons' in layer else None
@@ -97,10 +99,11 @@ class ModelLSTMCuDnnParalel(BaseModel):
 class ModelLSTMParalel(BaseModel):
     """A class for an building and inferencing an lstm model with cuDnnlstm"""
  
-    def __init__(self):
-        super().__init__()
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.c = configs
  
-    def build_model(self, configs):
+    def build_model(self):
         timer = Timer()
         timer.start()
         
@@ -108,7 +111,8 @@ class ModelLSTMParalel(BaseModel):
 
         # this model is not sequencial
         self.model = None
-
+        configs = self.c
+        
         for layer in configs['model']['layers']:
 
             neurons = layer['neurons'] if 'neurons' in layer else None
