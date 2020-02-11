@@ -88,7 +88,7 @@ class BaseModel():
 
         if self.save == True:
             self.save_model(self.save_fnameh5)
-            self.save_architecture(self.save_fname)
+            #self.save_architecture(self.save_fname)
     
         self.model.summary()
         

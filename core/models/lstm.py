@@ -48,7 +48,8 @@ class ModelLSTM(BaseModel):
         
         print(self.model.summary())
         self.model.compile(loss=configs['model']['loss'], optimizer=configs['model']['optimizer'], metrics=['accuracy'])       
-        print('[Model] Model Compiled with structure:', self.model.inputs)      
+        print('[Model] Model Compiled with structure:', self.model.inputs)
+        self.save_architecture(self.save_fname)     
         timer.stop()
 
 
@@ -96,8 +97,8 @@ class ModelLSTMCuDnnParalel(BaseModel):
         self.model = Model(inputs=[first_input, second_input], outputs=output)
         self.model.compile(loss=configs['model']['loss'], optimizer=configs['model']['optimizer'], metrics=['accuracy'])
         print(self.model.summary())
-
         print('[Model] Model Compiled with structure:', self.model.inputs)      
+        self.save_architecture(self.save_fname) 
         timer.stop()
 
 class ModelLSTMParalel(BaseModel):
@@ -145,7 +146,9 @@ class ModelLSTMParalel(BaseModel):
         self.model = Model(inputs=[first_input, second_input], outputs=output)
         self.model.compile(loss=configs['model']['loss'], optimizer=configs['model']['optimizer'], metrics=['accuracy'])
         
-        print('[Model] Model Compiled with structure:', self.model.inputs)      
+        print('[Model] Model Compiled with structure:', self.model.inputs)
+        self.save_architecture(self.save_fname) 
+
         timer.stop()
 
 def create_Neural_Network(neurons):
