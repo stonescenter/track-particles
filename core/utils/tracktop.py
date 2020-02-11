@@ -841,8 +841,8 @@ def track_plot_xyz(list_of_df = [], **kwargs):
                 showbackground  = True,
                 backgroundcolor = 'rgb(230, 230,230)',
                 title           = 'z (mm)'
-            ),
-             camera = dict(
+            ),             
+            camera = dict(
                 up = dict(
                     x = 1,
                     y = 1,
@@ -856,15 +856,18 @@ def track_plot_xyz(list_of_df = [], **kwargs):
             ),
             aspectratio = dict( x = 1, y = 1, z = 1),
             aspectmode = 'manual'
-        ),
+            
+        ),   
     )
+
     fig =  go.Figure(data = data, layout = layout)
-    init_notebook_mode(connected=True)
+    #init_notebook_mode(connected=False)
+    
     if kwargs.get('path'):
         path = kwargs.get('path')
-        fig.write_html(path, auto_open=True)  
-    else:
-        iplot(fig)      
+        fig.write_html(path) 
+
+    return fig   
 
         
 #function to plot more than one dataframes
