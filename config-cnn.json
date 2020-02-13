@@ -1,0 +1,50 @@
+{
+    "paths": {
+        "save_dir": "results",
+        "log_dir": "logs"
+    },
+    "data": {
+        "filename": "./dataset/phi025-025_eta025-025_filtered.csv",
+        "train_split": 0.70,
+        "normalise": true
+    },
+    "training": {
+        "epochs": 20,
+        "batch_size": 32,
+        "save_model": true,
+        "load_model": false,
+        "use_gpu": true        
+    },
+    "model": {
+        "name": "cnn",
+        "loss": "mse",
+        "optimizer": "adam",
+        "layers": [
+            {
+                "type": "cnn",
+                "filters": 64,
+                "kernel_size": 2,
+                "activation": "relu",
+                "input_timesteps": 4,
+                "input_features": 3
+            },
+            {
+                "type": "maxpooling",
+                "pool_size": 2
+            },
+            {
+                "type": "flatten"
+            }, 
+            {
+                "type": "dense",
+                "neurons": 20,
+                "activation": "relu"
+            },              
+            {
+                "type": "dense",
+                "neurons": 3,
+                "activation": "linear"
+            }
+        ]
+    }
+}
