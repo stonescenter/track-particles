@@ -44,9 +44,9 @@ class BaseModel():
         set_random_seed(42)
 
     def load_model(self):
-        if self.exist_model(self.save_fname):
-            print('[Model] Loading model from file %s' % self.save_fname)
-            self.model = load_model(self.save_fname)
+        if self.exist_model(self.save_fnameh5):
+            print('[Model] Loading model from file %s' % self.save_fnameh5)
+            self.model = load_model(self.save_fnameh5)
             return True
         else:
             print('[Model] Can not load the model from file %s' % self.save_fname)
@@ -71,11 +71,11 @@ class BaseModel():
         timer.start()
         print('[Model] Training Started')
         print('[Model] %s epochs, %s batch size' % (epochs, batch_size))
-         
+        #print('[Model] Shape of data train: ', x.shape) 
         #save_fname = os.path.join(save_dir, '%s-e%s.h5' % (dt.datetime.now().strftime('%d%m%Y-%H%M%S'), str(epochs)))
         callbacks = [
             EarlyStopping(monitor='val_loss', patience=2),
-            ModelCheckpoint(filepath=self.save_fname, monitor='val_loss', save_best_only=True)
+            ModelCheckpoint(filepath=self.save_fnameh5, monitor='val_loss', save_best_only=True)
         ]
         history = self.model.fit(
             x,
@@ -87,11 +87,8 @@ class BaseModel():
         )
 
         if self.save == True:
-            self.save_model(self.save_fnameh5)
-            #self.save_architecture(self.save_fname)
-    
-        self.model.summary()
-        
+            self.save_model(self.save_fnameh5)             
+       
         print('[Model] Training Completed. Model h5 saved as %s' % self.save_fnameh5)
         print('[Model] Model train with structure:', self.model.inputs)
         timer.stop()

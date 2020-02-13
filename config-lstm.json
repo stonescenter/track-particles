@@ -12,7 +12,7 @@
         "epochs": 20,
         "batch_size": 32,
         "save_model": true,
-        "load_model": true,
+        "load_model": false,
         "use_gpu": true        
     },
     "model": {
@@ -22,34 +22,45 @@
         "layers": [
             {
                 "type": "lstm",
-                "neurons": 400,
+                "neurons": 200,
                 "input_timesteps": 4,
                 "input_features": 3,
                 "return_seq": true
             },
             {
-                "type": "dropout",
-                "rate": 0.2
-            },
-            {
                 "type": "lstm",
-                "neurons": 400,
-                "input_timesteps": 4,
-                "input_features": 3,
+                "neurons": 200,
                 "return_seq": false
             },
             {
-                "type": "dropout",
-                "rate": 0.2
+                "type": "dense",
+                "neurons": 400,
+                "activation": "tanh"
+            },
+            {
+                "type": "activation",
+                "activation": "tanh"
+            },
+            {
+                "type": "repeatvector",
+                "neurons": 50
             }, 
             {
-                "type": "dense",
-                "neurons": 20,
-                "activation": "relu"
-            },              
+                "type": "lstm",
+                "neurons": 200,
+                "return_seq": true
+            },
             {
-                "type": "dense",
-                "neurons": 3,
+                "type": "lstm",
+                "neurons": 200,
+                "return_seq": true
+            }, 
+            {
+                "type": "timedistributed",
+                "neurons": 3
+            },                                                                  
+            {
+                "type": "activation",
                 "activation": "linear"
             }
         ]

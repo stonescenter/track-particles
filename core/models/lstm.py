@@ -17,13 +17,14 @@ class ModelLSTM(BaseModel):
         super().__init__(configs)
         self.c = configs
 
-    def build_model(self, configs):
+    def build_model(self):
         timer = Timer()
         timer.start()
  
         print('[Model] Creating model..')   
-        self.name = configs['model']['name']
-        configs = self.c
+        
+        configs = self.c     
+
         for layer in configs['model']['layers']:
 
             neurons = layer['neurons'] if 'neurons' in layer else None
@@ -33,6 +34,8 @@ class ModelLSTM(BaseModel):
             input_timesteps = layer['input_timesteps'] if 'input_timesteps' in layer else None
             input_features = layer['input_features'] if 'input_features' in layer else None
             
+            print('input_features %s input_timesteps %s ' % ( input_features, input_timesteps))
+
             if layer['type'] == 'lstm':
                 self.model.add(LSTM(neurons, input_shape=(input_timesteps, input_features), return_sequences=return_seq))
             if layer['type'] == 'dense':
@@ -41,8 +44,8 @@ class ModelLSTM(BaseModel):
                 self.model.add(Dropout(dropout_rate))
             if layer['type'] == 'repeatvector':
                 self.model.add(RepeatVector(neurons))
-            if layer['type'] == 'timedistributed':
-                self.model.add(TimeDistributed(Dense(input_features)))
+            if layer['type'] == 'timedistributed':                
+                self.model.add(TimeDistributed(Dense(neurons)))
             if layer['type'] == 'activation':
                 self.model.add(Activation('linear'))
         
@@ -60,7 +63,7 @@ class ModelLSTMCuDnnParalel(BaseModel):
         super().__init__(configs)
         self.c = configs
  
-    def build_model(self, configs):
+    def build_model(self):
         timer = Timer()
         timer.start()
         
@@ -69,6 +72,7 @@ class ModelLSTMCuDnnParalel(BaseModel):
         # this model is not sequencial
         self.model = None
         configs = self.c
+
         for layer in configs['model']['layers']:
 
             neurons = layer['neurons'] if 'neurons' in layer else None
@@ -145,7 +149,7 @@ class ModelLSTMParalel(BaseModel):
 
         self.model = Model(inputs=[first_input, second_input], outputs=output)
         self.model.compile(loss=configs['model']['loss'], optimizer=configs['model']['optimizer'], metrics=['accuracy'])
-        
+        print(self.model.summary())
         print('[Model] Model Compiled with structure:', self.model.inputs)
         self.save_architecture(self.save_fname) 
 

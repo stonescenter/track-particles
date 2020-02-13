@@ -16,26 +16,18 @@ from core.utils.utils import *
 
 import numpy as np
 
-# def parse_args():
-#     """Parse arguments."""
-#     # Parameters settings
-#     parser = argparse.ArgumentParser(description="LSTM implementation ")
+def parse_args():
+    """Parse arguments."""
+    # Parameters settings
+    parser = argparse.ArgumentParser(description="LSTM implementation ")
 
-#     # Dataset setting
-#     parser.add_argument('--data_prefix', type=str, default="./dataset/2020_100_sorted.csv", help='Data file')
-#     parser.add_argument('--save_model', type=str, default="./results/model_lstm.h5", help='Model for inference')
+    # Dataset setting
+    parser.add_argument('--config', type=str, default="config.json", help='Configuration file')
 
-#     # Training parameters setting
-#     parser.add_argument('--neurons', type=int, default=1000, help='number of epochs to train [10, 200, 500]')
-#     parser.add_argument('--batch_size', type=int, default=1, help='number of batch')
-    
-#     parser.add_argument('--epochs', type=int, default=15, help='number of epochs to train [10, 200, 500]')
-#     parser.add_argument('--lr', type=float, default=0.001, help='learning rate [0.001] reduced by 0.1 after each 10000 iterations')
+    # parse the arguments
+    args = parser.parse_args()
 
-#     # parse the arguments
-#     args = parser.parse_args()
-
-#     return args
+    return args
 
 def gpu():
     import tensorflow as tf
@@ -59,12 +51,26 @@ def no_gpu():
     sess = tf.Session(config=config)
     set_session(sess)
 
+def manage_models(config):
+    
+    type_model = config['model']['name']
+    model = None
+
+    if type_model == 'lstm': #simple LSTM
+        model = ModelLSTM(config)
+    elif type_model == 'lstm-paralel':
+        model = ModelLSTMParalel(config)
+    elif type_model == 'cnn':
+        model = ModelCNN(config)
+
+    return model
+    
 def main():
 
-    #args = parse_args()       
+    args = parse_args()       
 
     # load configurations of model and others
-    configs = json.load(open('config-paralel.json', 'r'))
+    configs = json.load(open(args.config, 'r'))
 
     # create defaults dirs
     output_path = configs['paths']['save_dir']
@@ -93,7 +99,7 @@ def main():
     data = Dataset(data_dir, KindNormalization.Zscore)
 
     X, X_, y = data.prepare_training_data(FeatureType.Divided, normalise=True,
-                                                  cilyndrical=False)
+                                                  cilyndrical=True)
 
     # reshape data     
     X = data.reshape3d(X, time_steps, num_features)
@@ -107,7 +113,11 @@ def main():
     print('[Data] shape data y_test.shape:', y_test.shape)
 
 
-    model = ModelLSTMParalel(configs)
+    model = manage_models(configs)
+
+    if model is None:
+        print('Please instance model')
+        return
 
     loadModel = configs['training']['load_model']
     
@@ -176,16 +186,16 @@ def main():
 
     #Save data to plot
     X, X_, y = data.prepare_training_data(FeatureType.Divided, normalise=False,
-                                                      cilyndrical=False)
+                                                      cilyndrical=True)
     X_train, X_test, X_train_, X_test_, y_train, y_test = train_test_split(X, X_, y,
                                                                            test_size=1-split, random_state=42)
 
     y_pred = pd.DataFrame(y_predicted_orig)
     y_true = pd.DataFrame(y_test_orig)
 
-    y_true.to_csv(os.path.join(output_path, 'y_true.csv'), header=False, index=False)
-    y_pred.to_csv(os.path.join(output_path, 'y_pred.csv'), header=False, index=False)
-    X_test.to_csv(os.path.join(output_path, 'x_test.csv'), header=False, index=False)
+    y_true.to_csv(os.path.join(output_path, 'y_true_cylin.csv'), header=False, index=False)
+    y_pred.to_csv(os.path.join(output_path, 'y_pred_cylin.csv'), header=False, index=False)
+    X_test.to_csv(os.path.join(output_path, 'x_test_cylin.csv'), header=False, index=False)
     print('[Output] Results saved at %', output_path)
 if __name__=='__main__':
     main()
