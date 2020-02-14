@@ -10,8 +10,10 @@ import json
 from sklearn.model_selection import train_test_split
 
 from core.data.data_loader import *
-from core.models.lstm import ModelLSTM, ModelLSTMParalel
+from core.models.lstm import ModelLSTM, ModelLSTMParalel, ModelLSTMCuDnnParalel
 from core.models.cnn import ModelCNN
+from core.models.mlp import ModelMLP
+
 from core.utils.metrics import *
 from core.utils.utils import *
 
@@ -63,6 +65,8 @@ def manage_models(config):
         model = ModelLSTMParalel(config)
     elif type_model == 'cnn':
         model = ModelCNN(config)
+    elif type_model == 'mlp':
+        model = ModelMLP(config)        
 
     return model
 
@@ -103,7 +107,7 @@ def main():
                                                   cilyndrical=True)
 
     # reshape data     
-    X = data.reshape3d(X, time_steps, num_features)
+    #X = data.reshape3d(X, time_steps, num_features)
   
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, random_state=42)
     
