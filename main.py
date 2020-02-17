@@ -95,7 +95,8 @@ def main():
     num_features = configs['model']['layers'][0]['input_features']  # the number of features of each hits
 
     split = configs['data']['train_split']  # the number of features of each hits
-
+    cilyndrical = configs['data']['cilyndrical']  # set to polar or cartesian coordenates
+    normalise = configs['data']['normalise'] 
 
     # config gpu
     #gpu()
@@ -103,11 +104,11 @@ def main():
     # prepare data set
     data = Dataset(data_dir, KindNormalization.Zscore)
 
-    X, y = data.prepare_training_data(FeatureType.Positions, normalise=True,
-                                                  cilyndrical=True)
+    X, y = data.prepare_training_data(FeatureType.Positions, normalise=normalise,
+                                                  cilyndrical=cilyndrical)
 
     # reshape data     
-    #X = data.reshape3d(X, time_steps, num_features)
+    X = data.reshape3d(X, time_steps, num_features)
   
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, random_state=42)
     
@@ -129,8 +130,6 @@ def main():
 
         model.build_model()
 
-        #x_train = [X_train, X_train_]
-
         # in-memory training
         history = model.train(
             x=X_train,
@@ -145,9 +144,7 @@ def main():
         if not model.load_model():
             print ('[Error] please change the config file : load_model')
             return
-
-    #x_test = [X_test, X_test_]
-    
+   
     predicted = model.predict_one_hit(X_test)
 
     y_predicted = np.reshape(predicted, (predicted.shape[0]*predicted.shape[1], 1))

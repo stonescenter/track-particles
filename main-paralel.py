@@ -90,7 +90,8 @@ def main():
     num_features = configs['model']['layers'][0]['input_features']  # the number of features of each hits
 
     split = configs['data']['train_split']  # the number of features of each hits
-
+    cilyndrical = configs['data']['cilyndrical']  # set to polar or cartesian coordenates
+    normalise = configs['data']['normalise'] 
 
     # config gpu
     #gpu()
@@ -98,8 +99,8 @@ def main():
     # prepare data set
     data = Dataset(data_dir, KindNormalization.Zscore)
 
-    X, X_, y = data.prepare_training_data(FeatureType.Divided, normalise=True,
-                                                  cilyndrical=True)
+    X, X_, y = data.prepare_training_data(FeatureType.Divided, normalise=normalise,
+                                                  cilyndrical=cilyndrical)
 
     # reshape data     
     X = data.reshape3d(X, time_steps, num_features)

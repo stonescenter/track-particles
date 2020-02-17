@@ -6,7 +6,8 @@
     "data": {
         "filename": "./dataset/phi025-025_eta025-025_filtered.csv",
         "train_split": 0.70,
-        "normalise": true
+        "normalise": true,
+        "cilyndrical": false
     },
     "training": {
         "epochs": 20,
