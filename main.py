@@ -187,16 +187,30 @@ def main():
 
     #Save data to plot
     X, y = data.prepare_training_data(FeatureType.Positions, normalise=False,
-                                                      cilyndrical=True)
+                                                      cilyndrical=cilyndrical)
     X_train, X_test, y_train, y_test = train_test_split(X, y, 
                                         test_size=1-split, random_state=42)
 
     y_pred = pd.DataFrame(y_predicted_orig)
     y_true = pd.DataFrame(y_test_orig)
 
-    y_true.to_csv(os.path.join(output_path, 'y_true.csv'), header=False, index=False)
-    y_pred.to_csv(os.path.join(output_path, 'y_pred.csv'), header=False, index=False)
-    X_test.to_csv(os.path.join(output_path, 'x_test.csv'), header=False, index=False)
+    if cilyndrical:
+
+        y_true.to_csv(os.path.join(output_path, 'y_true_%s_cylin.csv' % configs['model']['name']),
+                    header=False, index=False)
+        y_pred.to_csv(os.path.join(output_path, 'y_pred_%s_cylin.csv' % configs['model']['name']),
+                    header=False, index=False)
+        X_test.to_csv(os.path.join(output_path, 'x_test_%s_cylin.csv' % configs['model']['name']),
+                    header=False, index=False)
+    else:
+
+        y_true.to_csv(os.path.join(output_path, 'y_true_%s_xyz.csv' % configs['model']['name']),
+                    header=False, index=False)
+        y_pred.to_csv(os.path.join(output_path, 'y_pred_%s_xyz.csv' % configs['model']['name']),
+                    header=False, index=False)
+        X_test.to_csv(os.path.join(output_path, 'x_test_%s_xyz.csv' % configs['model']['name']),
+                    header=False, index=False)
+
     print('[Output] Results saved at %', output_path)
 
 if __name__=='__main__':

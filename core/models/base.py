@@ -7,7 +7,6 @@ import math
 import datetime as dt
 
 import tensorflow as tf
-from tensorflow import set_random_seed
 
 import keras.backend as K
 from keras.backend.tensorflow_backend import set_session
@@ -40,8 +39,9 @@ class BaseModel():
             config=tf.ConfigProto(log_device_placement=True)
             sess = tf.Session(config=config)
             set_session(sess)
-
-        set_random_seed(42)
+        
+        #set_random_seed(42)
+        tf.compat.v1.set_random_seed(0)
 
     def load_model(self):
         if self.exist_model(self.save_fnameh5):
