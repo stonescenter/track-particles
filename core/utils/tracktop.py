@@ -588,7 +588,7 @@ def create_input(dirParam,
                 z_hit = hit_0.loc[:,'z']
 
                 # getting rho,eta,phi from x,y,z
-                rho, eta, phi = convert_xyz_to_rhoetaphi(x_hit, y_hit, x_hit)
+                rho, eta, phi = convert_xyz_to_rhoetaphi(x_hit, y_hit, z_hit)
                 
                 # reshaping rho, eta, phi to concatenate
                 rho = np.reshape(rho.values.flatten(),(1,1))
