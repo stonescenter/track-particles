@@ -6,19 +6,20 @@
     "data": {
         "filename": "./dataset/phi025-025_eta025-025_filtered.csv",
         "train_split": 0.70,
-        "normalise": true
+        "normalise": true,
+        "cylindrical": true
     },
     "training": {
         "epochs": 20,
         "batch_size": 32,
         "save_model": true,
-        "load_model": true,
+        "load_model": false,
         "use_gpu": true        
     },
     "model": {
         "name": "lstm",
         "loss": "mse",
-        "optimizer": "RMSprop",
+        "optimizer": "rmsprop",
         "layers": [
             {
                 "type": "lstm",
