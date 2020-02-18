@@ -57,19 +57,19 @@ class Dataset():
 			raise TypeError('direction must be an instance of FeatureType Enum')
 	
 
-		self.cilyndrical = cilyndrical
+		self.cylindrical = cylindrical
 
 		interval = 11
 
 		# x, y, z coordinates
-		if cilyndrical == False:
+		if cylindrical == False:
 			bp=1
 			ep=4
 			bpC=10
 			epC=11
 		   
 		# cilyndrical coordinates    
-		elif cilyndrical == True:
+		elif cylindrical == True:
 			bp=4
 			ep=7
 			bpC=10
@@ -148,19 +148,19 @@ class Dataset():
 			raise TypeError('direction must be an instance of FeatureType Enum')
 	
 
-		self.cilyndrical = cilyndrical
+		self.cylindrical = cylindrical
 
 		interval = 11
 
 		# x, y, z coordinates
-		if cilyndrical == False:
+		if cylindrical == False:
 			bp=1
 			ep=4
 			bpC=10
 			epC=11
 		   
 		# cilyndrical coordinates    
-		elif cilyndrical == True:
+		elif cylindrical == True:
 			bp=4
 			ep=7
 			bpC=10
