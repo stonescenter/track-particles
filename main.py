@@ -95,7 +95,7 @@ def main():
     num_features = configs['model']['layers'][0]['input_features']  # the number of features of each hits
 
     split = configs['data']['train_split']  # the number of features of each hits
-    cilyndrical = configs['data']['cilyndrical']  # set to polar or cartesian coordenates
+    cylindrical = configs['data']['cylindrical']  # set to polar or cartesian coordenates
     normalise = configs['data']['normalise'] 
 
     # config gpu
@@ -187,7 +187,7 @@ def main():
 
     #Save data to plot
     X, y = data.prepare_training_data(FeatureType.Positions, normalise=False,
-                                                      cilyndrical=cilyndrical)
+                                                      cylindrical=cylindrical)
     X_train, X_test, y_train, y_test = train_test_split(X, y, 
                                         test_size=1-split, random_state=42)
 

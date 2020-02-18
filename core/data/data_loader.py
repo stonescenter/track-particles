@@ -51,7 +51,7 @@ class Dataset():
 
 		print("[Data] data loaded from ", input_path)
 
-	def prepare_training_data(self, feature_type, normalise=True, cilyndrical=False):
+	def prepare_training_data(self, feature_type, normalise=True, cylindrical=False):
 
 		if not isinstance(feature_type, FeatureType):
 			raise TypeError('direction must be an instance of FeatureType Enum')
@@ -142,7 +142,7 @@ class Dataset():
 			# return x_data, y_data normalizated with no data splited
 			return (self.x_data, self.y_data)
 
-	def prepare_training_data2(self, feature_type, normalise=True, cilyndrical=False):
+	def prepare_training_data2(self, feature_type, normalise=True, cylindrical=False):
 
 		if not isinstance(feature_type, FeatureType):
 			raise TypeError('direction must be an instance of FeatureType Enum')
