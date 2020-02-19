@@ -7,6 +7,7 @@ import pandas as pd
 import datetime as dt
 import matplotlib.pyplot as plt
 import seaborn as sns
+from copy import deepcopy
 
 import plotly.figure_factory as ff
 import plotly.graph_objs as go
@@ -245,12 +246,49 @@ def plot_distances_plotly(d1, d2, save_to):
 
     fig.show()
 
+# function to convert tracks with just rho,eta,phi (cylindrical coordinates)
+# hit information to x,y,z (cartesian coordinates)
 
+def conv_slice_rhoetaphi_to_xyz(df_aux, n_hits = 5):
+    pivot_tmp = 0
+    for i in range(n_hits):
+        pivot_tmp = i * 3
+        rho = df_aux.iat[pivot_tmp + 0]
+        eta = df_aux.iat[pivot_tmp + 1]
+        phi = df_aux.iat[pivot_tmp + 2]
+        if (rho != 0 and eta != 0 and phi != 0):
+            x, y, z = convert_rhoetaphi_to_xyz(rho, eta, phi)
+            df_aux.iat[pivot_tmp + 0] = x
+            df_aux.iat[pivot_tmp + 1] = y
+            df_aux.iat[pivot_tmp + 2] = z
+    return df_aux
 
-#function to plot tracks
-def track_plot_xyz(list_of_df = [], **kwargs):
+# function to convert tracks with just x,y,z (cartesian coordinates)
+# hit information to rho,eta,phi (cylindrical coordinates)
+def conv_slice_xyz_to_rhoetaphi(df_in, n_hits = 5):
+    pivot_tmp = 0
+    for i in range(n_hits):
+        pivot_tmp = i * 3
+        x = df_aux.iat[pivot_tmp + 0]
+        y = df_aux.iat[pivot_tmp + 1]
+        z = df_aux.iat[pivot_tmp + 2]
+        if (x != 0 and y != 0 and z != 0):
+            rho, eta, phi = convert_xyz_to_rhoetaphi(x, y, z)
+            df_aux.iat[pivot_tmp + 0] = rho
+            df_aux.iat[pivot_tmp + 1] = eta
+            df_aux.iat[pivot_tmp + 2] = phi
+    return df_aux
     
-    global pivot, shift
+    
+    
+#function to plot tracks with just x,y,z hit information
+def track_plot_xyz(list_of_df_in = [],
+                   n_hits = 5,
+                   cylindrical = False,
+                   **kwargs):
+ 
+    # deep copy to avoid linking with the original dataframe addresss
+    list_of_df = deepcopy(list_of_df_in)
     
     n_tracks = 1
     title = 'Track plots'
@@ -272,10 +310,7 @@ def track_plot_xyz(list_of_df = [], **kwargs):
                        'the dataframe.\nn_tracks will be: ' +  str(n_tracks) + 
                        ' (the number of tracks in the dataset)')
             warnings.warn(wrn_msg, RuntimeWarning, stacklevel=2)
-                
-    if kwargs.get('pivot'):
-        pivot = kwargs.get('pivot')
-    
+
     if kwargs.get('title'):
         title = kwargs.get('title')
         
@@ -292,22 +327,19 @@ def track_plot_xyz(list_of_df = [], **kwargs):
         
     if kwargs.get('line_size'):
         line_size = abs(kwargs.get('line_size'))
-        
-    
-    
-    len_xyz = 5
     
 
     # Initializing lists of indexes
-    selected_columns_x = np.zeros(len_xyz)
-    selected_columns_y = np.zeros(len_xyz)
-    selected_columns_z = np.zeros(len_xyz)
+    selected_columns_x = np.zeros(n_hits)
+    selected_columns_y = np.zeros(n_hits)
+    selected_columns_z = np.zeros(n_hits)
 
     # Generating indexes
-    for i in range(len_xyz):
-        selected_columns_x[i] = int(i * 3 + 0)
-        selected_columns_y[i] = int(i * 3 + 1)
-        selected_columns_z[i] = int(i * 3 + 2)
+    for i in range(n_hits):
+        pivot_tmp = i * 3
+        selected_columns_x[i] = int(pivot_tmp + 0)
+        selected_columns_y[i] = int(pivot_tmp + 1)
+        selected_columns_z[i] = int(pivot_tmp + 2)
 
     # list of data to plot
     data = []
@@ -323,11 +355,13 @@ def track_plot_xyz(list_of_df = [], **kwargs):
                           RuntimeWarning, stacklevel=2)
         
         for j in range(n_tracks):
+            if cylindrical is True:
+                # function to convert rho, eta,phi to x,y,z
+                list_of_df[i].iloc[j, :] = conv_slice_rhoetaphi_to_xyz(list_of_df[i].iloc[j, :])
             track[j] = go.Scatter3d(
-                # Removing null values (zeroes) in the plot
-                x = list_of_df[i].replace(0.0, np.nan).iloc[j, selected_columns_x],
-                y = list_of_df[i].replace(0.0, np.nan).iloc[j, selected_columns_y],
-                z = list_of_df[i].replace(0.0, np.nan).iloc[j, selected_columns_z],
+                x = list_of_df[i].iloc[j, selected_columns_x],
+                y = list_of_df[i].iloc[j, selected_columns_y],
+                z = list_of_df[i].iloc[j, selected_columns_z],
                 name = df_name + ' ' + str(j),
                 opacity = opacity,
                 marker = dict(
@@ -343,8 +377,6 @@ def track_plot_xyz(list_of_df = [], **kwargs):
             # append the track[i] in the list for plotting
             data.append(track[j])
     layout = dict(
-        #width    = 900,
-        #height   = 750,
         autosize = True,
         title    = title,
         scene = dict(
@@ -368,8 +400,8 @@ def track_plot_xyz(list_of_df = [], **kwargs):
                 showbackground  = True,
                 backgroundcolor = 'rgb(230, 230,230)',
                 title           = 'z (mm)'
-            ),             
-            camera = dict(
+            ),
+             camera = dict(
                 up = dict(
                     x = 1,
                     y = 1,
@@ -383,19 +415,15 @@ def track_plot_xyz(list_of_df = [], **kwargs):
             ),
             aspectratio = dict( x = 1, y = 1, z = 1),
             aspectmode = 'manual'
-            
-        ),   
+        ),
     )
-
     fig =  go.Figure(data = data, layout = layout)
-    #init_notebook_mode(connected=False)
-    
+    init_notebook_mode(connected=True)
     if kwargs.get('path'):
         path = kwargs.get('path')
-        fig.write_html(path) 
-
-    return fig   
-
+        fig.write_html(path, auto_open=True)  
+    else:
+        iplot(fig)
         
 #function to plot more than one dataframes
 
