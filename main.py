@@ -105,7 +105,7 @@ def main():
     data = Dataset(data_dir, KindNormalization.Zscore)
 
     X, y = data.prepare_training_data(FeatureType.Positions, normalise=normalise,
-                                                  cilyndrical=cilyndrical)
+                                                  cylindrical=cylindrical)
 
     # reshape data     
     X = data.reshape3d(X, time_steps, num_features)
@@ -194,7 +194,7 @@ def main():
     y_pred = pd.DataFrame(y_predicted_orig)
     y_true = pd.DataFrame(y_test_orig)
 
-    if cilyndrical:
+    if cylindrical:
 
         y_true.to_csv(os.path.join(output_path, 'y_true_%s_cylin.csv' % configs['model']['name']),
                     header=False, index=False)
