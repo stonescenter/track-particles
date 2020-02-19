@@ -15,6 +15,7 @@ from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 
 from pylab import *
 
+from .transformation import *
 
 class Timer():
  
@@ -418,13 +419,12 @@ def track_plot_xyz(list_of_df_in = [],
         ),
     )
     fig =  go.Figure(data = data, layout = layout)
-    init_notebook_mode(connected=True)
+    #init_notebook_mode(connected=True)
     if kwargs.get('path'):
         path = kwargs.get('path')
         fig.write_html(path, auto_open=True)  
-    else:
-        iplot(fig)
-        
+    
+    return fig     
 #function to plot more than one dataframes
 
 def track_plot_list(list_of_df = [], **kwargs):
