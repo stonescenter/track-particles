@@ -4,16 +4,16 @@
         "log_dir": "logs"
     },
     "data": {
-        "filename": "./dataset/phi025-025_eta025-025_filtered.csv",
+        "filename": "./dataset/10hits.csv",
         "train_split": 0.70,
         "normalise": true,
-        "cylindrical": true
+        "cylindrical": false
     },
     "training": {
-        "epochs": 20,
-        "batch_size": 32,
+        "epochs": 3,
+        "batch_size": 1,
         "save_model": true,
-        "load_model": false,
+        "load_model": true,
         "use_gpu": true        
     },
     "model": {
