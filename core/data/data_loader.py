@@ -47,6 +47,7 @@ class Dataset():
 		'''
 		self.start_hits = 9
 		self.interval = 11
+		self.cylindrical = False
 		self.data = dataframe.iloc[:, self.start_hits:]
 
 		print("[Data] data loaded from ", input_path)
@@ -59,7 +60,7 @@ class Dataset():
 
 		self.cylindrical = cylindrical
 
-		interval = 11
+		interval = self.interval
 
 		# x, y, z coordinates
 		if cylindrical == False:
@@ -142,100 +143,47 @@ class Dataset():
 			# return x_data, y_data normalizated with no data splited
 			return (self.x_data, self.y_data)
 
-	def prepare_training_data2(self, feature_type, normalise=True, cylindrical=False):
-
-		if not isinstance(feature_type, FeatureType):
-			raise TypeError('direction must be an instance of FeatureType Enum')
-	
+	def get_training_data(self, cylindrical=False, hits=5):
+		'''
+			This function return a dataset with the numbers of hits with
+			cartesian or cylindrical positions.
+		'''
 
 		self.cylindrical = cylindrical
 
-		interval = 11
+		begin_coord = 0
+		end_coord = 0
+		begin_val = 10
+		end_val = 11
 
-		# x, y, z coordinates
-		if cylindrical == False:
-			bp=1
-			ep=4
-			bpC=10
-			epC=11
-		   
+		if self.cylindrical == False:
+			begin_coord = 1
+			end_coord = 4
 		# cilyndrical coordinates    
-		elif cylindrical == True:
-			bp=4
-			ep=7
-			bpC=10
-			epC=11  
+		elif self.cylindrical == True:
+			begin_coord = 4
+			end_coord = 7
 
-		df_hits_values = None
-		df_hits_positions = None
+		begin_cols = [begin_coord+(self.interval*hit) for hit in range(0, hits)]
+		end_cols = [end_coord+(self.interval*hit) for hit in range(0, hits)]
 
-		if feature_type==FeatureType.Divided:
-			# get hits positions p1(X1,Y1,Z1) p2(X2,Y2,Z2) p3(X3,Y3,Z3) p4(X4,Y4,Z4)
-			df_hits_positions = self.data.iloc[:, np.r_[
-							bp:ep,
-							bp+(interval*1):ep+(interval*1),
-							bp+(interval*2):ep+(interval*2),
-							bp+(interval*3):ep+(interval*3)]]
-			# get hits values p1(V1,V2,V3,V4)
-			df_hits_values = self.data.iloc[:, np.r_[
-							bpC:epC,
-							bpC+(interval*1):epC+(interval*1),
-							bpC+(interval*2):epC+(interval*2),
-							bpC+(interval*3):epC+(interval*3)]]
+		new_df = pd.DataFrame()
+		for c in range(0,len(begin_cols)):
+		    frame = self.data.iloc[:,np.r_[begin_cols[c]:end_cols[c]]]
+		    new_df = pd.concat([new_df, frame], axis=1)
 
-			frames = [df_hits_positions, df_hits_values]
-			df_hits_positions = pd.concat(frames, axis=1)
+		self.x_data = new_df	          
+		#self.y_data = self.x_data.iloc[:, -3:] # last hit
 
-		if feature_type==FeatureType.Mixed:			                               
+		self.len = len(self.x_data) 
 
-			df_hits_positions = self.data.iloc[:, np.r_[
-							bp:ep,
-							bpC:epC,
-							bp+(interval*1):ep+(interval*1), bpC+(interval*1):epC+(interval*1),
-							bp+(interval*2):ep+(interval*2),  bpC+(interval*2):epC+(interval*2),
-							bp+(interval*3):ep+(interval*3),  bpC+(interval*3):epC+(interval*3)]]
+		print("[Data] Shape Data set " , self.x_data.shape)
 
-		elif feature_type==FeatureType.Positions:			                               
+		return self.x_data
 
-			df_hits_positions = self.data.iloc[:, np.r_[
-							bp:ep, 
-							bp+(interval*1):ep+(interval*1),
-							bp+(interval*2):ep+(interval*2),
-							bp+(interval*3):ep+(interval*3)]]
-
-		self.x_data = df_hits_positions	          
-		self.y_data = self.data.iloc[:, np.r_[bp+(interval*4):(bp+(interval*4)+3)]]
-
-		self.len = len(self.data) 
-
-		xcolumns = self.x_data.columns
-		ycolumns = self.y_data.columns
-
-		# normalization just of features.
-		if normalise:
-			xscaled = self.x_scaler.fit_transform(self.x_data.values)
-			self.x_data = pd.DataFrame(xscaled, columns=xcolumns)			
-
-			yscaled = self.y_scaler.fit_transform(self.y_data.values)
-			self.y_data = pd.DataFrame(yscaled, columns=ycolumns)	
-
-		print("[Data] shape datas X: ", self.x_data.shape)
-		print("[Data] shape data y: ", self.y_data.shape)
-		print('[Data] len data total:', self.len)
-
-		#y_hit_info = self.getitem_by_hit(hit_id)
-		
-		if feature_type==FeatureType.Divided:
-			# return x_data, y_data normalizated with data splited
-
-			return (self.x_data.iloc[:,0:12], self.x_data.iloc[:,-4:], self.y_data)
-		else:
-			# return x_data, y_data normalizated with no data splited
-			return (self.x_data, self.y_data)
-
-	def convert_to_supervised(self, sequences, n_hit_in, n_hit_out, n_features):
+	def convert_to_supervised(self, sequences, n_hit_in, n_hit_out, n_features, normalise=True):
 		'''
-			n_hit_in : 3 number of hits
+			n_hit_in : 4 number of hits
 			n_hit_out: 1 number of future hits
 			n_features 3
 		'''
@@ -244,42 +192,68 @@ class Dataset():
 		rows = sequences.shape[0]
 		cols = sequences.shape[1]
 
-		print(rows, cols)
-
-		seq_x, seq_y = sequences[0, 0:n_hit_in*n_features], sequences[0, n_hit_in*n_features:out_end_idx:]
-		X.append(seq_x)
-		Y.append(seq_y)
-		for i in range(1, rows):
-
-			for j in range(0, cols):
-			
+		for i in range(0, rows):
+			end_idx = 0
+			out_end_idx = 0
+			for j in range(0, cols, n_features):
 				end_ix = j + n_hit_in*n_features
 				out_end_idx = end_ix + n_hit_out*n_features
 
 				if out_end_idx > cols+1:
-					print('corta ', out_end_idx)
+					#print('corta ', out_end_idx)
 					break
-				if i < 10:	
-					print('[%s,%s:%s][%s,%s:%s]' % (i,j,end_ix,i,end_ix,out_end_idx))		
+				#if i < 5:	
+				#    print('[%s,%s:%s][%s,%s:%s]' % (i, j, end_ix, i, end_ix, out_end_idx))
+
 				seq_x, seq_y = sequences[i, j:end_ix], sequences[i, end_ix:out_end_idx]
 
 				X.append(seq_x)
 				Y.append(seq_y)
+					
+		#return np.array(X) , np.array(Y)
+		#xcolumns = self.x_data.columns
+		#ycolumns = self.y_data.columns
 
-			# end_ix = n_hit_in*n_features
-			# out_end_idx = end_ix + n_hit_out*n_features
+		# normalization just of features.
+		if normalise:
+			xscaled = self.x_scaler.fit_transform(X)
+			self.x_data = pd.DataFrame(xscaled)			
 
-			# 	#if out_end_idx > cols+1:
-			# 	#	print('corta ', out_end_idx)
-			# 	#	break
-			# 	if i < 10:	
-			# 		print('[%s,%s:%s][%s,%s:%s]' % (i,j,end_ix,i,end_ix,out_end_idx))		
-			# 	seq_x, seq_y = sequences[i-1, n_features:end_ix].extend(sequences[i-1, end_ix:]), sequences[i, end_ix:out_end_idx]
+			yscaled = self.y_scaler.fit_transform(Y)
+			self.y_data = pd.DataFrame(yscaled)	
+		else:
+			self.x_data = pd.DataFrame(X)			
+			self.y_data = pd.DataFrame(Y)				
 
-			# 	X.append(seq_x)
-			# 	Y.append(seq_y)
-						
-		return np.array(X) , np.array(Y)
+		return pd.DataFrame(self.x_data) , pd.DataFrame(self.y_data)
+
+	def convert_supervised_to_normal(self, sequences, n_hit_in, n_hit_out, hits):
+
+		Y = []
+
+		len_pred_seq = hits - n_hit_in
+		len_seq = len(sequences)
+		end_ix = 0
+
+		for x in range(0, len_seq, len_pred_seq):
+			cols = []
+			end_ix = x + len_pred_seq
+			pred_seq = sequences[x:end_ix,:]
+
+			#print('matrix: ', pred_seq)
+					
+			pred_seq = np.matrix(pred_seq).flatten().tolist()			
+			#result = m_pred_seq.flatten().tolist()
+			#print('result: ', pred_seq)
+			#print('result 0: ', pred_seq[0])
+			#for i in range(0, len(pred_seq)):		
+			#	print('\t row added:', pred_seq[i,:])
+			#	ocls.append(pred_seq[i,:])
+			#print(lst.to_matrix())
+
+			Y.append(pred_seq[0])
+
+		return Y
 
 	def load_data(self, train_split=0):
 
@@ -342,3 +316,6 @@ class Dataset():
 
 	def inverse_transform(self, data):
 		return self.y_scaler.inverse_transform(data)
+
+	#def inverse_transform_x(self, data):
+	#	return self.x_scaler.inverse_transform(data)

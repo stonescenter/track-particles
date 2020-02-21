@@ -1,0 +1,44 @@
+{
+    "paths": {
+        "save_dir": "results",
+        "log_dir": "logs"
+    },
+    "data": {
+        "filename": "./dataset/phi025-025_eta025-025_filtered.csv",
+        "train_split": 0.70,
+        "normalise": true,
+        "cylindrical": false
+    },
+    "training": {
+        "epochs": 20,
+        "batch_size": 4,
+        "save_model": true,
+        "load_model": true,
+        "use_gpu": true        
+    },
+    "model": {
+        "name": "mlp",
+        "loss": "mse",
+        "optimizer": "rmsprop",
+        "layers": [
+            {
+                "type": "mlp",
+                "neurons": 12,
+                "input_features": 12,
+                "input_timesteps": 0,                
+                "activation": "relu"
+            },
+                  
+            {
+                "type": "dense",
+                "neurons": 6    ,
+                "activation": "relu"
+            },
+            {
+                "type": "dense",
+                "neurons": 3,
+                "activation": "linear"
+            }
+        ]
+    }
+}
