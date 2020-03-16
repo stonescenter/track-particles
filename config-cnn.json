@@ -38,7 +38,7 @@
             }, 
             {
                 "type": "dense",
-                "neurons": 20,
+                "neurons": 50,
                 "activation": "relu"
             },              
             {

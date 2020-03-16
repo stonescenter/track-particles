@@ -13,7 +13,6 @@ from core.data.data_loader import *
 from core.models.lstm import ModelLSTM, ModelLSTMParalel, ModelLSTMCuDnnParalel
 from core.models.cnn import ModelCNN
 from core.models.mlp import ModelMLP
-from core.models.rnn import ModelRNN
 
 from core.utils.metrics import *
 from core.utils.utils import *
@@ -67,12 +66,12 @@ def manage_models(config):
     elif type_model == 'cnn':
         model = ModelCNN(config)
     elif type_model == 'mlp':
-        model = ModelMLP(config)
-    elif type_model == 'rnn':
-        model = ModelRNN(config)        
+        model = ModelMLP(config)        
 
     return model
 
+def read_config(config):
+    pass
 def main():
 
     args = parse_args()       
@@ -105,31 +104,19 @@ def main():
     # prepare data set
     data = Dataset(data_dir, KindNormalization.Zscore)
 
-    dataset = data.get_training_data(cylindrical=cylindrical, hits=num_hits)
-    #dataset = dataset.iloc[0:2640,0:]
-    #dataset = dataset.iloc[0:31600,0:]
-    
-    print('[Data] new shape :', dataset.shape)
+    dataset = data.get_training_data(cylindrical=cylindrical, normalise=normalise, hits=num_hits)
+
 
     print("[Data] Converting to supervised ...")
+
     X, y = data.convert_to_supervised(dataset.values, n_hit_in=time_steps,
-                                n_hit_out=1, n_features=num_features, normalise=normalise)
-
-    print('[Data] shape supervised: X%s y%s :' % (X.shape, y.shape))
-    
+                                n_hit_out=1, n_features=num_features, normalise=False)
+    print('[Data] New Shape: X%s y%s :' % (X.shape, y.shape))
+    # reshape data     
     X = data.reshape3d(X, time_steps, num_features)
-
-    # Data is converted to supervisionated
-    #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, shuffle=True, random_state=123)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, shuffle=False)
-    #X_train, X_test, y_train, y_test = data.train_test_split(X, y, train_size=split)
-
-    # reshape data 
-    #X_train_tensor = data.reshape3d(X_train, time_steps, num_features)
-    #X_test_tensor = data.reshape3d(X_test, time_steps, num_features)
-    #print('[Data] re-shape X data ', X_train_tensor.shape)
-    #print('[Data] re-shape X data ', X_test_tensor.shape)
-
+  
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, random_state=42)
+    
     print('[Data] shape data X_train.shape:', X_train.shape)
     print('[Data] shape data y_train.shape:', y_train.shape)
     print('[Data] shape data X_test.shape:', X_test.shape)
@@ -164,51 +151,33 @@ def main():
         if not model.load_model():
             print ('[Error] please change the config file : load_model')
             return
-
-    print('[Data] Predicting dataset with input ...', X_test.shape)
+   
+    
+    
     predicted = model.predict_one_hit(X_test)
-    print('[Data] shape predicted output ', predicted.shape)
     print('[Data] shape y_test ', y_test.shape)
- 
+    print('[Data] shape predicted ', predicted.shape)
 
     y_predicted = np.reshape(predicted, (predicted.shape[0]*predicted.shape[1], 1))
     y_true_ = data.reshape2d(y_test, 1)
 
-    print('[Data] new shape y_test, y_true_ ', y_true_.shape)
-    print('[Data] new shape y_predicted ', y_predicted.shape)
-    
-
-    # we need to transform to original data
-    if normalise:
-        y_test_orig = data.inverse_transform_y(y_test)
-        y_predicted_orig = data.inverse_transform_y(predicted)
-    else:
-        y_test_orig = y_test
-        y_predicted_orig = predicted
-
-
+    print('[Data] shape y_true_ ', y_true_.shape)
+    print('[Data] shape y_predicted ', y_predicted.shape)
     # calculing scores
     result = calc_score(y_true_, y_predicted, report=True)
-    #r2, rmse, rmses = evaluate_forecast(y_test, predicted)
-    r2, rmse, rmses = evaluate_forecast(y_test_orig, y_predicted_orig)  
+    r2, rmse, rmses = evaluate_forecast(y_test, predicted)
     summarize_scores(r2, rmse,rmses)
 
  
 
-    print('[Data] shape y_test ', y_test.shape)
-    print('[Data] shape predicted ', predicted.shape)
+    # print('[Data] shape y_test ', y_test.shape)
+    # print('[Data] shape predicted ', predicted.shape)
 
     # print('[Output] Finding shortest points ... ')
     # near_points = get_shortest_points(y_test, predicted)
     # y_near_points = pd.DataFrame(near_points)
 
     # print('[Data] shape predicted ', y_near_points.shape)
-
-
-    #y_near_orig = data.inverse_transform(y_near_points)
-
-    print('[Data] shape y_test_orig ', y_test_orig.shape)
-    print('[Data] shape y_predicted_orig ', y_predicted_orig.shape)
 
     # print('[Output] Calculating distances ...')
 
@@ -224,41 +193,76 @@ def main():
     #                                                  cylindrical=cylindrical)
     
     #X = data.get_training_data(cylindrical=False, hit=10)
-    X_train, X_test_new = train_test_split(dataset, test_size=1-split, shuffle=False)
-    #X_train, X_test = data.train_test_split(dataset, y, train_size=split)
+    X_train, X_test = train_test_split(dataset, test_size=1-split, random_state=42)
 
-    # 18 fields
-    y_predicted_orig = pd.DataFrame(y_predicted_orig)
-    y_predicted_orig = data.convert_supervised_to_normal(y_predicted_orig.values, n_hit_in=4, n_hit_out=1, hits=10)
-    y_predicted_orig = pd.DataFrame(y_predicted_orig)
-    print('y_predicted_orig shape ', y_predicted_orig.shape)
 
-    y_true_orig = pd.DataFrame(y_test_orig)
-    y_true_orig = data.convert_supervised_to_normal(y_true_orig.values, n_hit_in=4, n_hit_out=1, hits=10)
-    y_true_orig = pd.DataFrame(y_true_orig)
-    print('y_true_orig shape ', y_true_orig.shape)
+    #time_steps 
+    #y_pred = pd.DataFrame(y_predicted_orig)
+    pred_conv = data.convert_supervised_to_normal(predicted, n_hit_in=4, n_hit_out=1, hits=10)
+    pred_conv = pd.DataFrame(pred_conv)
+    print('conv_pred shape ', pred_conv.shape)
 
-    x_true = X_test_new.iloc[:,0:time_steps*num_features]
-    y_true = X_test_new.iloc[:,time_steps*num_features:]
+
+    #y_true = pd.DataFrame(y_test_orig)
+    #conv_true = data.convert_supervised_to_normal(y_true.values, n_hit_in=4, n_hit_out=1, hits=10)
+    #conv_true = pd.DataFrame(conv_true)
+    #print('conv_true shape ', conv_true.shape)
+
+    # we need to transform to original data
+    if normalise:
+        empty_frame = np.zeros((X_test.shape[0], X_test.shape[1] - pred_conv.shape[1]))
+        print('empty ', empty_frame.shape)
+        empty_frame = pd.DataFrame(empty_frame)
+        frame = pd.concat([empty_frame, pred_conv], axis = 1, ignore_index = True)
+        #y_test_orig = data.inverse_transform(y_test)
+        print('concat ', frame.shape)
+        y_predicted_orig = data.inverse_transform_x(frame)
+        y_predicted_orig = pd.DataFrame(y_predicted_orig)
+        print('y_predicted_orig ', y_predicted_orig.shape)        
+        y_test_orig = X_test.iloc[:,time_steps*num_features:]
+        y_predicted_orig = y_predicted_orig.iloc[:,time_steps*num_features:]
+
+    else:
+        y_test_orig = X_test.iloc[:,time_steps*num_features:]
+        y_predicted_orig = predicted
+    #y_near_orig = data.inverse_transform(y_near_points)
+
+    print('[Data] shape y_test_orig ', y_test_orig.shape)
+    print('[Data] shape y_predicted_orig ', y_predicted_orig.shape)
 
     if cylindrical:
 
-        y_true_orig.to_csv(os.path.join(output_path, 'y_true_%s_cylin.csv' % configs['model']['name']),
+        conv_true.to_csv(os.path.join(output_path, 'y_true_%s_cylin.csv' % configs['model']['name']),
                     header=False, index=False)
-        y_predicted_orig.to_csv(os.path.join(output_path, 'y_pred_%s_cylin.csv' % configs['model']['name']),
+
+        conv_pred.to_csv(os.path.join(output_path, 'y_pred_%s_cylin.csv' % configs['model']['name']),
                     header=False, index=False)
-        x_true.to_csv(os.path.join(output_path, 'x_true_%s_cylin.csv' % configs['model']['name']),
+
+        X_test = X_test.iloc[:,0:time_steps*num_features]
+        X_test.to_csv(os.path.join(output_path, 'x_test_%s_cylin.csv' % configs['model']['name']),
                     header=False, index=False)
     else:
 
-        y_true_orig.to_csv(os.path.join(output_path, 'y_true_%s_xyz.csv' % configs['model']['name']),
-                    header=False, index=False)
-        y_predicted_orig.to_csv(os.path.join(output_path, 'y_pred_%s_xyz.csv' % configs['model']['name']),
-                    header=False, index=False)
-        x_true.to_csv(os.path.join(output_path, 'x_true_%s_xyz.csv' % configs['model']['name']),
+        y_test_orig.to_csv(os.path.join(output_path, 'y_true_%s_xyz.csv' % configs['model']['name']),
                     header=False, index=False)
 
-    print('[Output] Results saved in files %', output_path)
+        
+        y_predicted_orig.to_csv(os.path.join(output_path, 'y_pred_%s_xyz.csv' % configs['model']['name']),
+                    header=False, index=False)
+        
+        X_test = X_test.iloc[:,0:time_steps*num_features]
+        print(' shape test ', X_test.shape)
+        X_test.to_csv(os.path.join(output_path, 'x_test_%s_xyz.csv' % configs['model']['name']),
+                    header=False, index=False)
+
+    print('[Output] Results saved at %', output_path)
 
 if __name__=='__main__':
     main()
+
+
+
+
+
+
+

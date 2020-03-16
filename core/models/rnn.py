@@ -2,13 +2,13 @@ __author__ = "Steve Ataucuri"
 __copyright__ = "Sprace.org.br"
 __version__ = "1.0.0"
 
-from keras.layers import Input, Dense, Activation, Dropout
+from keras.layers import Input, Dense, Activation, Dropout, SimpleRNN
 from keras.models import Model
 
 from core.models.base import BaseModel
 from core.utils.utils import Timer
 
-class ModelMLP(BaseModel):
+class ModelRNN(BaseModel):
     """A class for an building and inferencing an lstm model"""
  
     def __init__(self, configs):
@@ -33,10 +33,10 @@ class ModelMLP(BaseModel):
             
             #print('input_features %s input_timesteps %s ' % ( input_features, input_timesteps))
 
-            if layer['type'] == 'mlp':
+            if layer['type'] == 'rnn':
                 # batch_size 'e o input_timesteps
                 # a 2D input with shape `(batch_size, input_dim)`.
-                self.model.add(Dense(neurons, input_dim=input_features*input_timesteps,
+                self.model.add(SimpleRNN(neurons, input_dim=input_features*input_timesteps,
                     kernel_initializer='normal', activation=activation))
             if layer['type'] == 'dense':
                 self.model.add(Dense(neurons, kernel_initializer='normal', activation=activation))            

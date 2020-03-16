@@ -175,13 +175,18 @@ class Dataset():
 		self.x_data = new_df	          
 		#self.y_data = self.x_data.iloc[:, -3:] # last hit
 
+		# normalization just of features.
+		#if normalise:
+		#	xscaled = self.x_scaler.fit_transform(self.x_data.values)
+		#	self.x_data = pd.DataFrame(xscaled)			
+
 		self.len = len(self.x_data) 
 
-		print("[Data] Shape Data set " , self.x_data.shape)
+		print("[Data] Data Set original with %s hits and shape%s" % (hits, self.x_data.shape))
 
 		return self.x_data
 
-	def convert_to_supervised(self, sequences, n_hit_in, n_hit_out, n_features, normalise=True):
+	def convert_to_supervised(self, sequences, n_hit_in, n_hit_out, n_features, normalise=False):
 		'''
 			n_hit_in : 4 number of hits
 			n_hit_out: 1 number of future hits
@@ -228,6 +233,12 @@ class Dataset():
 		return pd.DataFrame(self.x_data) , pd.DataFrame(self.y_data)
 
 	def convert_supervised_to_normal(self, sequences, n_hit_in, n_hit_out, hits):
+		'''
+			This function convert the predicted sequences to a vector
+			n_hit_in : 4 number of hits
+			n_hit_out: 1 number of future hits
+			hits	 : 10
+		'''
 
 		Y = []
 
@@ -255,30 +266,34 @@ class Dataset():
 
 		return Y
 
-	def load_data(self, train_split=0):
+	def train_test_split(self, X, y, train_size=0):
 
 		#self.data = self.data.values
-		i_split = round(len(self.x_data) * train_split)
+		assert len(X) == len(y), 'Invalid len size of dataset!.'
+		assert train_size >= 0 and train_size < 1, 'Invalid train_size.'
 
-		print("[Data] Splitting data at %d with %s" %(i_split, train_split))
+		i_split = round(len(X) * train_size)
+
+		print("[Data] Splitting data at %d with %s" %(i_split, train_size))
 
 		if i_split > 0:
-			x_train = self.x_data.iloc[0:i_split,0:].values
-			y_train = self.y_data.iloc[0:i_split,0:].values
+			x_train = X.iloc[0:i_split,0:]
+			y_train = y.iloc[0:i_split,0:]
 
-			x_test = self.x_data.iloc[i_split:,0:].values
-			y_test = self.y_data.iloc[i_split:,0:].values
+			x_test = X.iloc[i_split:,0:]
+			y_test = y.iloc[i_split:,0:]
 
-			return (x_train, y_train, x_test, y_test)
+			return (x_train, x_test, y_train, y_test)
 		elif i_split == 0:
-			x_data = self.x_data.iloc[0:,0:].values
-			y_data = self.y_data.iloc[0:,0:].values
+			x_train = X.iloc[0:,0:]
+			y_train = y.iloc[0:,0:]
 
-			return (x_data, y_data)
+			return (x_train, y_train)
 
 	def reshape3d(self, x, time_steps, num_features):
 		len_x = x.shape[0]
-		return np.reshape(x.values.flatten(), (len_x, time_steps, num_features))
+		#return np.reshape(x.values.flatten(), (len_x, time_steps, num_features))
+		return np.reshape(x.values, (len_x, time_steps, num_features))
 
 	def reshape2d(self, x, num_features):
 		#len_x = x.shape[0]
@@ -314,8 +329,8 @@ class Dataset():
 	def __len__(self):
 		return self.len
 
-	def inverse_transform(self, data):
+	def inverse_transform_y(self, data):
 		return self.y_scaler.inverse_transform(data)
 
-	#def inverse_transform_x(self, data):
-	#	return self.x_scaler.inverse_transform(data)
+	def inverse_transform_x(self, data):
+		return self.x_scaler.inverse_transform(data)

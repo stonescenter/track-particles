@@ -68,7 +68,7 @@ def manage_models(config):
         model = ModelCNN(config)
     elif type_model == 'mlp':
         model = ModelMLP(config)
-    elif type_model == 'rnn':
+    elif type_model == 'simplernn':
         model = ModelRNN(config)        
 
     return model
@@ -102,13 +102,13 @@ def main():
     normalise = configs['data']['normalise'] 
     num_hits = configs['data']['num_hits']
 
+      
     # prepare data set
     data = Dataset(data_dir, KindNormalization.Zscore)
-
+    
     dataset = data.get_training_data(cylindrical=cylindrical, hits=num_hits)
     #dataset = dataset.iloc[0:2640,0:]
-    #dataset = dataset.iloc[0:31600,0:]
-    
+    dataset = dataset.iloc[0:31600,0:]
     print('[Data] new shape :', dataset.shape)
 
     print("[Data] Converting to supervised ...")
@@ -116,27 +116,16 @@ def main():
                                 n_hit_out=1, n_features=num_features, normalise=normalise)
 
     print('[Data] shape supervised: X%s y%s :' % (X.shape, y.shape))
+
+    # reshape data     
+    #X = data.reshape3d(X, time_steps, num_features)
+    # shuffle is True for default value
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, shuffle=False, random_state=42)
     
-    X = data.reshape3d(X, time_steps, num_features)
-
-    # Data is converted to supervisionated
-    #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, shuffle=True, random_state=123)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, shuffle=False)
-    #X_train, X_test, y_train, y_test = data.train_test_split(X, y, train_size=split)
-
-    # reshape data 
-    #X_train_tensor = data.reshape3d(X_train, time_steps, num_features)
-    #X_test_tensor = data.reshape3d(X_test, time_steps, num_features)
-    #print('[Data] re-shape X data ', X_train_tensor.shape)
-    #print('[Data] re-shape X data ', X_test_tensor.shape)
-
     print('[Data] shape data X_train.shape:', X_train.shape)
-    print('[Data] shape data y_train.shape:', y_train.shape)
     print('[Data] shape data X_test.shape:', X_test.shape)
+    print('[Data] shape data y_train.shape:', y_train.shape)
     print('[Data] shape data y_test.shape:', y_test.shape)
-
-    # config gpu
-    gpu()
 
     model = manage_models(configs)
 
@@ -164,7 +153,7 @@ def main():
         if not model.load_model():
             print ('[Error] please change the config file : load_model')
             return
-
+   
     print('[Data] Predicting dataset with input ...', X_test.shape)
     predicted = model.predict_one_hit(X_test)
     print('[Data] shape predicted output ', predicted.shape)
@@ -173,10 +162,9 @@ def main():
 
     y_predicted = np.reshape(predicted, (predicted.shape[0]*predicted.shape[1], 1))
     y_true_ = data.reshape2d(y_test, 1)
-
+    
     print('[Data] new shape y_test, y_true_ ', y_true_.shape)
     print('[Data] new shape y_predicted ', y_predicted.shape)
-    
 
     # we need to transform to original data
     if normalise:
@@ -186,45 +174,23 @@ def main():
         y_test_orig = y_test
         y_predicted_orig = predicted
 
-
     # calculing scores
     result = calc_score(y_true_, y_predicted, report=True)
     #r2, rmse, rmses = evaluate_forecast(y_test, predicted)
     r2, rmse, rmses = evaluate_forecast(y_test_orig, y_predicted_orig)  
     summarize_scores(r2, rmse,rmses)
 
- 
+
 
     print('[Data] shape y_test ', y_test.shape)
     print('[Data] shape predicted ', predicted.shape)
 
-    # print('[Output] Finding shortest points ... ')
-    # near_points = get_shortest_points(y_test, predicted)
-    # y_near_points = pd.DataFrame(near_points)
-
-    # print('[Data] shape predicted ', y_near_points.shape)
-
-
-    #y_near_orig = data.inverse_transform(y_near_points)
 
     print('[Data] shape y_test_orig ', y_test_orig.shape)
     print('[Data] shape y_predicted_orig ', y_predicted_orig.shape)
 
-    # print('[Output] Calculating distances ...')
-
-    # dist0 = calculate_distances_matrix(y_predicted_orig, y_test_orig)
-    # dist1 = calculate_distances_matrix(y_predicted_orig, y_near_orig)
-
-    # print('[Output] Saving distances ... ')
-    # save_fname = os.path.join(save_dir, 'distances.png' )
-    # plot_distances(dist0, dist1, save_fname)
-
-    #Save data to plot
-    #X, y = data.prepare_training_data(FeatureType.Positions, normalise=False,
-    #                                                  cylindrical=cylindrical)
-    
     #X = data.get_training_data(cylindrical=False, hit=10)
-    X_train, X_test_new = train_test_split(dataset, test_size=1-split, shuffle=False)
+    X_train, X_test_new = train_test_split(dataset, test_size=1-split, shuffle=False, random_state=42)
     #X_train, X_test = data.train_test_split(dataset, y, train_size=split)
 
     # 18 fields

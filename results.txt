@@ -1,0 +1,158 @@
+% Results LSTM
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.993
+	Root Mean Square Error(RMSE) = 0.084
+	Mean Absolute Error   (MAE) = 0.028
+
+R^2  features:	[1.00, 0.99, 0.99] 
+RMSE:		[0.084] 
+RMSE vector: 	[0.03, 0.08, 0.12] 
+
+ % con "filename": "/data/track-ml/eramia/10hits_without_etaphi_filter_30000hits.csv"
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.951
+	Root Mean Square Error(RMSE) = 0.223
+	Mean Absolute Error   (MAE) = 0.088
+
+R^2  features:	[0.98, 0.99, 0.88] 
+RMSE:		[21.111] 
+RMSE vector: 	[36.56, 0.13, 0.63] 
+
+"filename": "/data/track-ml/eramia/10hits_without_etaphi_filter_pt_greater_1.csv",
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.981
+	Root Mean Square Error(RMSE) = 0.136
+	Mean Absolute Error   (MAE) = 0.048
+
+R^2  features:	[0.99, 1.00, 0.95] 
+RMSE:		[12.645] 
+RMSE vector: 	[21.90, 0.04, 0.39] 
+
+"filename": "/data/track-ml/eramia/10hits_without_etaphi_filter_pt_less_1.csv",
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.942
+	Root Mean Square Error(RMSE) = 0.241
+	Mean Absolute Error   (MAE) = 0.082
+
+R^2  features:	[0.98, 0.99, 0.85] 
+RMSE:		[19.010] 
+RMSE vector: 	[32.92, 0.13, 0.70] 
+
+
+
+% Results CNN
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.998
+	Root Mean Square Error(RMSE) = 0.044
+	Mean Absolute Error   (MAE) = 0.017
+
+R^2  features:	[1.00, 1.00, 1.00] 
+RMSE:		[0.044] 
+RMSE vector: 	[0.02, 0.05, 0.05] 
+
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.998
+	Root Mean Square Error(RMSE) = 0.044
+	Mean Absolute Error   (MAE) = 0.017
+
+R^2  features:	[1.00, 1.00, 1.00] 
+RMSE:		[2.340] 
+RMSE vector: 	[4.05, 0.01, 0.01] 
+
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.998
+	Root Mean Square Error(RMSE) = 0.047
+	Mean Absolute Error   (MAE) = 0.017
+
+R^2  features:	[1.00, 1.00, 1.00] 
+RMSE:		[2.315] 
+RMSE vector: 	[4.01, 0.01, 0.01] 
+
+ % con "filename": "/data/track-ml/eramia/10hits_without_etaphi_filter_30000hits.csv"
+
+ [Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.954
+	Root Mean Square Error(RMSE) = 0.214
+	Mean Absolute Error   (MAE) = 0.069
+
+R^2  features:	[0.98, 1.00, 0.88] 
+RMSE:		[19.534] 
+RMSE vector: 	[33.83, 0.11, 0.61] 
+
+% con "filename": "/data/track-ml/eramia/10hits_without_etaphi_filter_pt_greater_1.csv",
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.973
+	Root Mean Square Error(RMSE) = 0.162
+	Mean Absolute Error   (MAE) = 0.044
+
+R^2  features:	[0.99, 1.00, 0.93] 
+RMSE:		[12.329] 
+RMSE vector: 	[21.35, 0.03, 0.48] 
+
+"filename": "/data/track-ml/eramia/10hits_without_etaphi_filter_pt_less_1.csv",
+
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.942
+	Root Mean Square Error(RMSE) = 0.241
+	Mean Absolute Error   (MAE) = 0.072
+
+R^2  features:	[0.98, 1.00, 0.85] 
+RMSE:		[19.606] 
+RMSE vector: 	[33.95, 0.10, 0.71] 
+
+
+
+
+
+
+
+
+% mlp
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.997
+	Root Mean Square Error(RMSE) = 0.058
+	Mean Absolute Error   (MAE) = 0.016
+
+R^2  features:	[1.00, 1.00, 0.99] 
+RMSE:		[2.774] 
+RMSE vector: 	[4.80, 0.01, 0.02] 
+
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.996
+	Root Mean Square Error(RMSE) = 0.065
+	Mean Absolute Error   (MAE) = 0.013
+
+R^2  features:	[1.00, 1.00, 0.99] 
+RMSE:		[2.057] 
+RMSE vector: 	[3.56, 0.01, 0.02] 
+
+ % con "filename": "/data/track-ml/eramia/10hits_without_etaphi_filter_30000hits.csv"
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.954
+	Root Mean Square Error(RMSE) = 0.214
+	Mean Absolute Error   (MAE) = 0.065
+
+R^2  features:	[0.98, 1.00, 0.88] 
+RMSE:		[19.493] 
+RMSE vector: 	[33.76, 0.10, 0.62] 
+
+% "filename": "/data/track-ml/eramia/10hits_without_etaphi_filter_pt_greater_1.csv",
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.982
+	Root Mean Square Error(RMSE) = 0.133
+	Mean Absolute Error   (MAE) = 0.037
+
+R^2  features:	[0.99, 1.00, 0.96] 
+RMSE:		[13.470] 
+RMSE vector: 	[23.33, 0.03, 0.38] 
+
+%  "filename": "/data/track-ml/eramia/10hits_without_etaphi_filter_pt_less_1.csv",
+    
+[Output] ---Regression Scores--- 
+	R_2 statistics        (R2)  = 0.944
+	Root Mean Square Error(RMSE) = 0.236
+	Mean Absolute Error   (MAE) = 0.072
+
+R^2  features:	[0.98, 1.00, 0.85] 
+RMSE:		[18.199] 
+RMSE vector: 	[31.51, 0.09, 0.70] 
